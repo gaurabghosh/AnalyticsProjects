@@ -1,0 +1,80 @@
+---
+title: "Visualizing SF Crime"
+author: "Gaurab Ghosh"
+date: "Friday, September 12, 2014"
+output: word_document
+---
+
+```{r}
+library(ggplot2)
+crDf = read.csv("sfCrime.csv", header=TRUE, fill=TRUE)
+```
+Exploratory Data Analysis
+
+```{r}
+summary(crDf)
+head(crDf)
+names(crDf)
+nrow(crDf)
+```
+
+### WHERE SHOULDN'T YOU PARK YOUR CAR?
+
+```{r}
+uniDescription = crDf[!duplicated(crDf["Descript"]),"Descript"]
+```
+
+From the uniDescription, we get a sense of the description which tells us where we should not park cars. 
+We find the words AUTO and VEHICLE which indicates crimes related to cars. We should target these places not to park cars.
+
+```{r}
+toMatch = c("AUTO", "VEHICLE")
+add = crDf[grep(paste(toMatch, collapse="|"), crDf[,"Descript"]),c("Address")]
+df = as.data.frame(table(add))
+df$rank = rank(-df$Freq,ties.method="min")
+df = df[order(df$rank,decreasing = F),]
+```
+
+Top 10 addresses where most of the AUTO/VEHICLE related thefts have happened:
+
+```{r}
+df[1:10,]
+```
+
+Bar plot showing the same
+
+```{r}
+q = qplot(x=add, y=Freq, data=df[1:10,], geom="bar", stat="identity")
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+### WHAT ARE THE SAFEST LOCATIONS IN SF?
+
+```{r}
+safeAdd = crDf[,"Address"]
+safeDf = as.data.frame(table(safeAdd))
+safeDf$rank = rank(-safeDf$Freq,ties.method="min")
+safeDf = safeDf[order(safeDf$rank,decreasing = T),]
+```
+
+Top 10 Safest Locations in SF:
+```{r}
+safeDf[1:10,]
+```
+
+### WHAT DAY/TIMES ARE ESPECIALLY DANGEROUS?
+```{r}
+dangerousDay = crDf[,c("DayOfWeek")]
+dangDf = as.data.frame(table(dangerousDay))
+dangDf$rankDay = rank(-dangDf$Freq, ties.method="min")
+dangDf = dangDf[order(dangDf$rank, decreasing=F),]
+```
+
+Distribution of Days when crimes have occured:
+```{r}
+dangDf[1:7,]
+q = qplot(x=dangerousDay, y=Freq, data=dangDf, geom="bar", stat="identity")
+q + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
