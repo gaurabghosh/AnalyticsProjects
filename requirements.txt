@@ -1,4 +1,2 @@
 pandas==0.22.0
 plotly==2.5.1
--e git+git@code.corp.indeed.com:python-libraries/common-python.git#egg=common_python-master
--e git+git@code.corp.indeed.com:analytics-reports/ipython-ish.git@master#egg=ipython-ish
